@@ -58,7 +58,7 @@
                                 <div class="flex-1 h-full overflow-auto px-2">
                                     @foreach ($users as $user)
                                         <div class="entry cursor-pointer transform bg-white mb-4 rounded p-4 flex shadow-md items-center" :class="({{$user->id}} == to_id)?'active':''"
-                                            @click='viewMessages("{{ $user->id }}","{{ $user->name }}")'>
+                                            @click='viewMessages("{{ $user->id }}","{{ $user->name }}", true)'>
                                             <div class="flex-2">
                                                 <div class="w-12 h-12 relative">
                                                     <img class="w-12 h-12 rounded-full mx-auto"
@@ -168,11 +168,10 @@
                     }
                 },
                 methods: {
-                    viewMessages(id, name) {
+                    viewMessages(id,name,scroll_bottom) {
                         if (id != '') {
                             this.to_id = id;
                             this.to_name = name;
-
                             let url = base_url + "/messages/" + id;
                             let method = "GET";
                             let _this = this;
@@ -183,7 +182,9 @@
                                         task.created_at = moment.utc(task.created_at).local().fromNow();
                                         return task;
                                     });
-                                    $('.messages').animate({ scrollTop: $(document).height() }, 1000);
+                                    if (scroll_bottom) {
+                                        $('.messages').animate({ scrollTop: $(document).height() }, 1000);
+                                    }
                                 }
                             });
                         }
@@ -200,7 +201,7 @@
 
                             commonAjaxCall(url, method, data, function(result) {
                                 if (result.status) {
-                                    _this.viewMessages(_this.to_id, _this.to_name);
+                                    _this.viewMessages(_this.to_id, _this.to_name, true);
                                     _this.message = '';
                                 }
                             });
@@ -209,7 +210,7 @@
                     checkNewMessages() {
                         let _this = this;
                         const interval = setInterval(function() {
-                            _this.viewMessages(_this.to_id, _this.to_name);
+                            _this.viewMessages(_this.to_id, _this.to_name, false);
                         }, 1000);
 
                         // clearInterval(interval);
@@ -221,7 +222,7 @@
 
                         commonAjaxCall(url, method, null, function(result) {
                             if (result.status) {
-                                _this.viewMessages(_this.to_id, _this.to_name);
+                                _this.viewMessages(_this.to_id, _this.to_name, false);
                             }
                         });
                     }
@@ -229,7 +230,7 @@
                 mounted() {
                     this.checkNewMessages();
                     if (this.users.length > 0) {
-                        this.viewMessages(this.users[0].id, this.users[0].name);
+                        this.viewMessages(this.users[0].id, this.users[0].name, true);
                     }
                     this.is_loaded = true;
                 }

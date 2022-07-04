@@ -91,7 +91,7 @@ class MessageController extends Controller
                 $query->where('from_id',$id)->where('to_id',Auth::id());
             })->orWhere(function ($query) use ($id) {
                 $query->where('from_id',Auth::id())->where('to_id',$id);
-            })->get();
+            })->orderBy('id')->get();
 
             $response = [
                 "status" => true,
